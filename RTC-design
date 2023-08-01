@@ -1,0 +1,70 @@
+module RTC(RTC_clk,RTC_En, seconds, minutes, hours); // clock is of 1Hz.
+  input RTC_clk,RTC_En;
+  output [7:0]seconds, minutes, hours;
+
+\\states of FSM
+  parameter IDLE = 2'b00;
+  parameter SECOND = 2'b01;
+  parameter MINUTE = 2'b10;
+  parameter HOUR = 2'b11;
+  
+  reg [7:0]sec, min, hr;
+  reg [1:0]Nx_state = 0;
+  
+  always @(posedge RTC_clk)
+    begin
+      case(Nx_state)
+        IDLE: begin  // Idle state when Enable is inactive
+            sec = 0;
+            min = 0;
+            hr = 0;
+            if(RTC_En == 1)
+                Nx_state <= SECOND;
+            else
+              Nx_state <= IDLE;
+          end
+          
+        SECOND:begin
+          if(sec < 60)
+              begin
+                sec <= sec + 1;
+                Nx_state <= SECOND;
+              end
+            else
+              begin
+                sec <= 1;
+                 min <= min + 1;
+                Nx_state <= MINUTE;
+              end
+         end//SECOND
+              
+        MINUTE:begin 
+          if(min < 60)
+            begin 
+              Nx_state <= SECOND;
+            end
+          else
+            begin
+              min <= 1;
+              hr <= hr + 1;
+              Nx_state <= HOUR;
+            end
+        end//MINUTE
+            
+        HOUR:begin
+              if(hr < 24)
+                begin
+                  Nx_state <= MINUTE;
+                end
+              else
+                begin
+                  hr <= 1;
+                  Nx_state <= SECOND;
+                end
+            end//HOUR
+      endcase
+   end
+  assign seconds = sec;
+  assign minutes = min;
+  assign hours = hr;
+endmodule
