@@ -1,0 +1,30 @@
+`timescale 1s/1ns
+module RTC_tb;
+  
+  reg RTC_clk, RTC_En;
+  wire [7:0]seconds, minutes, hours;
+  
+  RTC uut(RTC_clk, RTC_En, seconds, minutes, hours);
+  
+  initial begin
+    RTC_clk = 0;
+    RTC_En = 0;
+    #5;
+    RTC_clk = 1;
+    RTC_En = 1;
+  end
+  always #0.5 RTC_clk = ~RTC_clk;
+  
+  initial 
+  begin
+   // $monitor(" Hour = %d |minutes = %d| Seconds = %d |",hours,minutes,seconds );
+    $monitor("%d:%d:%d",hours,minutes,seconds );
+  end
+  
+  initial 
+  begin
+    $dumpfile("dump.vcd");
+    $dumpvars;
+  end
+endmodule
+  
